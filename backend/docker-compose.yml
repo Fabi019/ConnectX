@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+      
+    expose:
+        - "6379"
+  node:
+    image: node:latest
+    restart: unless-stopped
+    working_dir: /app
+    
+    environment:
+        - NODE_ENV=production
+        - REDIS_URL=redis
+    
+    command:
+      - /bin/bash
+      - -c
+      - |
+        npm install
+        npm install typescript -g
+        npm run build
+        npm run start
+
+    # map host project folder to /app container folder
+    volumes:
+      - .:/app
+      
+    ports:
+      - "8443:4000"
+
+    # start container once `redis` service is up
+    depends_on:
+      - redis
+
+    # `redis` and `node` should be able to communicate
+    links:
+      - redis
