@@ -77,15 +77,13 @@ async function startApolloServer(typeDefs, resolvers) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     sessionParser(request, {}, () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       if (!request.session.uid) {
         console.log('No session in upgrade request found!');
       }
     });
   });
 
-  // Uses the combination of user specific data (ip, session-id) along the type and field being accessed
+  // Uses the combination of user specific data (ip) along the type and field being accessed
   const keyGenerator = (directiveArgs, source, args, context, info) =>
     `${context.ip}:${defaultKeyGenerator(directiveArgs, source, args, context, info)}`;
 
@@ -163,10 +161,6 @@ async function startApolloServer(typeDefs, resolvers) {
     app,
     cors: {
       credentials: true,
-      /*origin: (origin, callback) => {
-        console.log(`Origin ${origin} is being granted CORS access`);
-        callback(null, true);
-      },*/
       origin: process.env.NODE_ENV === 'production' ?
         ['https://connect-xr.web.app', 'https://connect-xr.firebaseapp.com'] :
         ['http://localhost:3000', 'http://192.168.178.120:3000'],

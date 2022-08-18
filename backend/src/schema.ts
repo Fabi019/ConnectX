@@ -79,8 +79,6 @@ export const resolvers = {
         (payload, args, { session }) => {
           const { lobbyId } = session;
 
-          //console.log('Gamestate:', lobbyId, uid);
-
           if (!lobbyId) {
             throw new Error('You are not in a game!');
           }
@@ -96,8 +94,6 @@ export const resolvers = {
         (payload, args, { session }) => {
           const { lobbyId } = session;
 
-          //console.log('LobbyState:', lobbyId, uid);
-
           if (!lobbyId) {
             throw new Error('You are not in a lobby!');
           }
@@ -112,8 +108,6 @@ export const resolvers = {
         () => pubsub.asyncIterator(['CHAT_MESSAGE']),
         (payload, args, { session }) => {
           const { lobbyId } = session;
-
-          //console.log('ChatMessage:', lobbyId, uid);
 
           if (!lobbyId) {
             throw new Error('You are not in a lobby!');
