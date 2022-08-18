@@ -175,6 +175,7 @@ function handleLobbyStateData(self, lobbyState, toast) {
     } else {
       toast({
         title: 'Player kicked!',
+        status: 'warning',
         description: 'A player has been removed from the lobby.',
       });
     }
