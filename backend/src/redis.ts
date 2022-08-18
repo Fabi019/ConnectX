@@ -1,7 +1,9 @@
 import { createClient } from 'redis';
 import { GameState, Lobby, Player } from './types';
 
-export const createRedisConnection = async () => {
+export type RedisClient = ReturnType<typeof createClient>;
+
+export async function createRedisConnection(): Promise<RedisClient> {
   const redisClient = createClient({
     url: `redis://${process.env.REDIS_URL || 'localhost'}:6379`,
     legacyMode: true,
@@ -30,7 +32,7 @@ export const createRedisConnection = async () => {
 
 export async function initializeLobby(
   lobbyId: string,
-  redis,
+  redis: RedisClient,
   maxPlayers = 4,
   playerCount = 0,
   rows = 15,
@@ -44,16 +46,16 @@ export async function initializeLobby(
   await redis.hSet(`lobby:${lobbyId}`, 'rows', rows);
   await redis.hSet(`lobby:${lobbyId}`, 'cols', cols);
   await redis.hSet(`lobby:${lobbyId}`, 'connect', connect);
-  //await redis.hSet(`lobby:${lobbyId}`, 'currentPlayer', 0);
-  //await redis.hSet(`lobby:${lobbyId}`, 'admin', '');
   await redis.hSet(`lobby:${lobbyId}`, 'state', state);
 
   await redis.expire(`lobby:${lobbyId}`, 60 * 60 * 24 * 3);
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return await redis.hGetAll(`lobby:${lobbyId}`) as Lobby;
 }
 
-export async function updateLobby(lobby: Lobby, redis): Promise<void> {
+export async function updateLobby(lobby: Lobby, redis: RedisClient): Promise<void> {
   await initializeLobby(
     lobby.lobbyId,
     redis,
@@ -65,7 +67,7 @@ export async function updateLobby(lobby: Lobby, redis): Promise<void> {
   );
 }
 
-export async function getLobbyPlayer(lobbyId: string, redis): Promise<Player[]> {
+export async function getLobbyPlayer(lobbyId: string, redis: RedisClient): Promise<Player[]> {
   const players = await redis.hGetAll(`player:${lobbyId}`);
 
   const playerList: Player[] = [];
@@ -79,7 +81,7 @@ export async function getLobbyPlayer(lobbyId: string, redis): Promise<Player[]> 
   return playerList;
 }
 
-export async function determineNextPlayer(lobbyId: string, redis): Promise<Player> {
+export async function determineNextPlayer(lobbyId: string, redis: RedisClient): Promise<Player> {
   const lobbyPlayer = await getLobbyPlayer(lobbyId, redis);
   const currentPlayerId = await redis.hGet(`lobby:${lobbyId}`, 'currentPlayer');
 
@@ -99,7 +101,7 @@ export async function determineNextPlayer(lobbyId: string, redis): Promise<Playe
   return nextPlayer;
 }
 
-export async function removePlayer(lobbyId: string, uid: string, redis): Promise<void> {
+export async function removePlayerFromLobby(lobbyId: string, uid: string, redis: RedisClient): Promise<void> {
   // Decrement player count
   await redis.hIncrBy(`lobby:${lobbyId}`, 'playerCount', -1);
 
@@ -117,6 +119,6 @@ export async function removePlayer(lobbyId: string, uid: string, redis): Promise
   return;
 }
 
-export async function isPlayerInLobby(lobbyId: string, uid: string, redis): Promise<boolean> {
+export async function isPlayerInLobby(lobbyId: string, uid: string, redis: RedisClient): Promise<boolean> {
   return await redis.hExists(`player:${lobbyId}`, uid);
 }

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { nanoid } from 'nanoid';
 
 import { Player, Lobby, GameState, GameUpdate, LobbyUpdate, LobbyState } from './types';
-import { getLobbyPlayer as getLobbyPlayers, determineNextPlayer, initializeLobby, removePlayer, updateLobby, isPlayerInLobby } from './redis';
+import { getLobbyPlayer as getLobbyPlayers, determineNextPlayer, initializeLobby, removePlayerFromLobby, updateLobby, isPlayerInLobby } from './redis';
 import { clearGame, getGameBoard, makeTurn, newGame } from './game';
 
 export const typeDefs = gql`
@@ -218,7 +218,7 @@ export const resolvers = {
         throw new Error('You cannot kick yourself from the lobby!');
       }
 
-      await removePlayer(lobbyId, otherUid, redis);
+      await removePlayerFromLobby(lobbyId, otherUid, redis);
 
       const newLobby = await redis.hGetAll(`lobby:${lobbyId}`) as Lobby;
       newLobby.players = await getLobbyPlayers(lobbyId, redis);
@@ -242,7 +242,7 @@ export const resolvers = {
         throw new Error('You are not in a lobby!');
       }
 
-      await removePlayer(lobbyId, uid, redis);
+      await removePlayerFromLobby(lobbyId, uid, redis);
 
       session.lobbyId = null;
 

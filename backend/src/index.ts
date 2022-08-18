@@ -117,7 +117,6 @@ async function startApolloServer(typeDefs, resolvers) {
         ctx,
         msg,
         args,
-        redis,
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         session: ctx.extra.request.session
