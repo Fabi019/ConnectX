@@ -87,7 +87,7 @@ async function startApolloServer(typeDefs, resolvers) {
 
   // Uses the combination of user specific data (ip, session-id) along the type and field being accessed
   const keyGenerator = (directiveArgs, source, args, context, info) =>
-    `${context.ip}:${context.session.id}:${defaultKeyGenerator(directiveArgs, source, args, context, info)}`;
+    `${context.ip}:${defaultKeyGenerator(directiveArgs, source, args, context, info)}`;
 
   const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer }
     = rateLimitDirective<unknown, IRateLimiterStoreOptions>({
