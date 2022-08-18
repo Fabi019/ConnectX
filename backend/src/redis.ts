@@ -108,9 +108,9 @@ export async function removePlayer(lobbyId: string, uid: string, redis): Promise
 
   const admin = await redis.hGet(`lobby:${lobbyId}`, 'admin');
   if (uid === admin) {
-    const newAdmin = await getLobbyPlayer(lobbyId, redis)[0];
-    if (newAdmin) {
-      await redis.hSet(`lobby:${lobbyId}`, 'admin', newAdmin.uid);
+    const lobbyPlayers = await getLobbyPlayer(lobbyId, redis);
+    if (lobbyPlayers.length >= 1) {
+      await redis.hSet(`lobby:${lobbyId}`, 'admin', lobbyPlayers[0].uid);
     }
   }
 
