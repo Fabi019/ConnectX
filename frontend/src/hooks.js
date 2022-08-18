@@ -31,11 +31,23 @@ export function useSelf(toast) {
   return self;
 }
 
-export function useDefaultToast(props) {
-  return useToast({
+export function useDefaultToast(initialProps) {
+  const toast = useToast({
     status: 'info',
     isClosable: true,
     position: 'top-right',
-    ...props
+    ...initialProps
   });
+  return (props) => {
+    if (props.status === 'error') {
+      if (!toast.isActive(props.description)) {
+        toast({
+          id: props.description,
+          ...props,
+        });
+      }
+    } else {
+      toast(props);
+    }
+  };
 }
