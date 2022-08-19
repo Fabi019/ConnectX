@@ -1,5 +1,4 @@
-import { Button, ButtonGroup, Center, Flex, Heading, Link, Text, VStack } from "@chakra-ui/react";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { Button, ButtonGroup, Center, Flex, Heading, Link, Spacer, Tag, Text, Tooltip, useClipboard, VStack } from "@chakra-ui/react";
 
 import LobbySettings from "../components/LobbySettings";
 import PlayerList from "../components/PlayerList";
@@ -111,11 +110,11 @@ export default function Lobby() {
       <VStack p={6} w='full'>
         <Heading as='h1' size='4xl'>Lobby</Heading>
 
+        <Spacer />
+
         <Text>Invite code or link:&nbsp;
           {lobbyState &&
-            <Link href={`${window.location.origin}?lobbyId=${lobbyState.lobbyId}`} isExternal>
-              <Text as='kbd'>{lobbyState.lobbyId}</Text><ExternalLinkIcon mx='2px' />
-            </Link>
+            <LinkTag lobbyId={lobbyState.lobbyId} />
           }
         </Text>
 
@@ -176,4 +175,22 @@ function handleLobbyStateData(self: Player, lobbyState: LobbyUpdate, toast: Toas
   } else if (lobbyState.state === LobbyState.GAME_START) { // Game start
     window.location.pathname = '/play';
   }
+}
+
+type LinkTagParams = { lobbyId: string };
+
+function LinkTag({ lobbyId }: LinkTagParams) {
+  const url = `${window.location.origin}?lobbyId=${lobbyId}`;
+  const { hasCopied, onCopy } = useClipboard(url);
+
+  return (
+    <Tooltip hasArrow label={hasCopied ? 'Copied!' : 'Click to copy!'}>
+      <Link onClick={(e) => {
+        e.preventDefault();
+        onCopy();
+      }} href={url} isExternal>
+        <Tag><Text as='kbd'>{lobbyId}</Text></Tag>
+      </Link>
+    </Tooltip>
+  );
 }

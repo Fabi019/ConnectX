@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Button, Center, Flex, Heading, Text, Tooltip, VStack } from "@chakra-ui/react";
+import { Button, Center, Flex, Heading, Spacer, Text, Tooltip, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 import ChatPanel from "../components/ChatPanel";
 import GameBoard from "../components/GameBoard";
@@ -61,6 +61,8 @@ export default function Game() {
     <Center minH='100vh'>
       <VStack p={6} w='full'>
         <Heading as='h1' size='4xl'>Play</Heading>
+
+        <Spacer />
 
         <Text>Connect {lobbyInfo && lobbyInfo.connect}</Text>
 
