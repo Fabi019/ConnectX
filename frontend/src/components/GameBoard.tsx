@@ -3,8 +3,9 @@ import { Grid, GridItem, Icon, Tooltip } from "@chakra-ui/react";
 import { motion, useAnimation } from "framer-motion";
 import { useEffect } from "react";
 import { useState } from "react";
-import { useDefaultToast } from "../hooks";
+import { Toast, useDefaultToast } from "../hooks";
 import { getPlayerColor } from "../theme";
+import { GameState, GameUpdate } from "../types";
 
 const MAKE_TURN = gql`
   mutation MakeTurn($col: Int!) {
@@ -38,21 +39,16 @@ const GAME_INFO = gql`
   }
 `;
 
-export default function GameBoard({ rows, cols }) {
+type BoardParams = { rows: number, cols: number };
+
+export default function GameBoard({ rows, cols }: BoardParams) {
   const toast = useDefaultToast();
 
-  const [selectedCol, setSelectedCol] = useState();
+  const [selectedCol, setSelectedCol] = useState(-1);
 
   const [board, setBoard] = useState([]);
 
   useSubscription(GAME_STATE, {
-    onError: (error) => {
-      toast({
-        title: 'Error updating game!',
-        description: error.message,
-        status: 'error',
-      });
-    },
     onSubscriptionData: (data) => {
       const gameState = data.subscriptionData.data.gameState;
       handleGameStateData(gameState, toast);
@@ -91,8 +87,8 @@ export default function GameBoard({ rows, cols }) {
       alignSelf='center'
       border='1px solid'
       borderRadius={5}
-      autoColumns={40}
-      autoRows={40}
+      autoColumns='40'
+      autoRows='40'
       bg='rgba(200, 200, 200, 0.3)'
     >
       {[...Array(cols)].map((_, col) =>
@@ -112,7 +108,16 @@ export default function GameBoard({ rows, cols }) {
   );
 }
 
-function BoardElement({ col, row, player, onClick, onEnter, bg }) {
+type ElementProps = { 
+  col: number,
+  row: number,
+  player?: { uid: string, nickname: string },
+  onClick: () => void,
+  onEnter: () => void,
+  bg: string
+}
+
+function BoardElement({ col, row, player, onClick, onEnter, bg }: ElementProps) {
   const controls = useAnimation();
 
   useEffect(() => {
@@ -168,21 +173,21 @@ function BoardElement({ col, row, player, onClick, onEnter, bg }) {
   )
 }
 
-function handleGameStateData(gameState, toast) {
-  if (gameState.state === 'LOBBY') { // Lobby
-    window.location = '/lobby';
-  } else if (gameState.state === 'TURN') { // Turn update
+function handleGameStateData(gameState: GameUpdate, toast: Toast) {
+  if (gameState.state === GameState.LOBBY) { // Lobby
+    window.location.pathname = '/lobby';
+  } else if (gameState.state === GameState.TURN) { // Turn update
     toast({
       title: 'Turn has changed!',
       description: `Next player is: ${gameState.player.nickname}.`,
     });
-  } else if (gameState.state === 'PLACE') { // Place update
+  } else if (gameState.state === GameState.PLACE) { // Place update
     /*toast({
       status: 'success',
       title: 'Turn finished!',
       description: `${gameState.player.nickname} finished their turn.`,
     });*/
-  } else if (gameState.state === 'GAME_END') { // Game end
+  } else if (gameState.state === GameState.GAME_END) { // Game end
     toast({
       status: 'success',
       title: 'Game finished!',

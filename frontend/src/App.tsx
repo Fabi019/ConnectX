@@ -19,9 +19,9 @@ function App() {
         <DevBar />
       }
       <Routes>
-        <Route exact path='/' element={<CreateLobby />} />
-        <Route exact path='/lobby' element={<Lobby />} />
-        <Route exact path='/play' element={<Game />} />
+        <Route path='/' element={<CreateLobby />} />
+        <Route path='/lobby' element={<Lobby />} />
+        <Route path='/play' element={<Game />} />
       </Routes>
     </ChakraProvider>
   );

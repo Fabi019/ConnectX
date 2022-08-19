@@ -6,7 +6,8 @@ import PlayerList from "../components/PlayerList";
 
 import { gql, useQuery, useMutation, useSubscription } from '@apollo/client';
 import { useState } from "react";
-import { useDefaultToast, useSelf } from "../hooks";
+import { Toast, useDefaultToast, useSelf } from "../hooks";
+import { Lobby as LobbyType, LobbyState, LobbyUpdate, Player } from "../types";
 
 const LOBBY_INFO = gql`
   query LobbyInfo {
@@ -60,7 +61,7 @@ const START_GAME = gql`
 export default function Lobby() {
   const toast = useDefaultToast();
 
-  const [lobbyState, setLobbyState] = useState();
+  const [lobbyState, setLobbyState] = useState<LobbyType>();
   const self = useSelf(toast);
 
   const [startGame] = useMutation(START_GAME, {
@@ -80,22 +81,15 @@ export default function Lobby() {
         description: error.message,
         status: 'error',
       });
-      window.location = '/';
+      window.location.pathname = '/';
     },
-    onCompleted: (_) => window.location = '/'
+    onCompleted: (_) => window.location.pathname = '/'
   })
 
   useSubscription(LOBBY_STATE, {
-    onError: (error) => {
-      toast({
-        title: 'Error updating lobby!',
-        description: error.message,
-        status: 'error',
-      });
-    },
     onSubscriptionData: (data) => {
       const lobbyState = data.subscriptionData.data.lobbyState;
-      handleLobbyStateData(self, lobbyState, toast);
+      handleLobbyStateData(self!!, lobbyState, toast);
       setLobbyState(lobbyState.lobby);
     }
   });
@@ -141,9 +135,9 @@ export default function Lobby() {
         </Flex>
 
         <ButtonGroup>
-          <Button colorScheme='red' onClick={leaveLobby}>Leave Lobby</Button>
+          <Button colorScheme='red' onClick={_ => leaveLobby()}>Leave Lobby</Button>
           {lobbyState && self && self.uid === lobbyState.admin &&
-            <Button colorScheme='green' onClick={startGame}>Start Game</Button>
+            <Button colorScheme='green' onClick={_ => startGame()}>Start Game</Button>
           }
         </ButtonGroup>
       </VStack>
@@ -151,27 +145,27 @@ export default function Lobby() {
   );
 }
 
-function handleLobbyStateData(self, lobbyState, toast) {
-  if (lobbyState.state === 'SETTINGS_UPDATE') {
+function handleLobbyStateData(self: Player, lobbyState: LobbyUpdate, toast: Toast) {
+  if (lobbyState.state === LobbyState.SETTINGS_UPDATE) {
     toast({
       title: 'Lobby settings updated!',
       description: 'The lobby admin has changed the settings.',
       status: 'success',
     });
-  } else if (lobbyState.state === 'PLAYER_JOIN') { // Player join
+  } else if (lobbyState.state === LobbyState.PLAYER_JOIN) { // Player join
     toast({
       title: 'Player joined!',
       description: 'A new player has joined the lobby.',
     });
-  } else if (lobbyState.state === 'PLAYER_LEAVE') { // Player leave
+  } else if (lobbyState.state === LobbyState.PLAYER_LEAVE) { // Player leave
     toast({
       title: 'Player left!',
       description: 'A player has left the lobby.',
     });
-  } else if (lobbyState.state === 'PLAYER_KICK') { // Player kick
+  } else if (lobbyState.state === LobbyState.PLAYER_KICK) { // Player kick
     // Check if we have been kicked
     if (!lobbyState.lobby.players.some(player => player.uid === self.uid)) {
-      window.location = '/';
+      window.location.pathname = '/';
     } else {
       toast({
         title: 'Player kicked!',
@@ -179,7 +173,7 @@ function handleLobbyStateData(self, lobbyState, toast) {
         description: 'A player has been removed from the lobby.',
       });
     }
-  } else if (lobbyState.state === 'GAME_START') { // Game start
-    window.location = '/play';
+  } else if (lobbyState.state === LobbyState.GAME_START) { // Game start
+    window.location.pathname = '/play';
   }
 }

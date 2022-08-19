@@ -1,6 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
-import { useToast } from "@chakra-ui/react";
+import { ToastId, useToast, UseToastOptions } from "@chakra-ui/react";
 import { useState } from "react";
+import { Player } from "./types";
 
 const SELF = gql`
   query Self {
@@ -11,7 +12,7 @@ const SELF = gql`
   }
 `;
 
-export function useSelf(toast) {
+export function useSelf(toast: Toast): Player | undefined {
   const [self, setSelf] = useState();
   useQuery(SELF, {
     fetchPolicy: 'network-only',
@@ -31,23 +32,24 @@ export function useSelf(toast) {
   return self;
 }
 
-export function useDefaultToast(initialProps) {
+export type Toast = (props: UseToastOptions) => ToastId | undefined;
+export function useDefaultToast(initialProps?: UseToastOptions | undefined): Toast {
   const toast = useToast({
     status: 'info',
     isClosable: true,
     position: 'top-right',
     ...initialProps
   });
-  return (props) => {
+  return (props: UseToastOptions) => {
     if (props.status === 'error') {
-      if (!toast.isActive(props.description)) {
-        toast({
-          id: props.description,
-          ...props,
+      if (!toast.isActive(props.description as string)) {
+        return toast({
+          id: props.description as string,
+          ...props
         });
       }
     } else {
-      toast(props);
+      return toast(props);
     }
   };
 }

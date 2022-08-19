@@ -3,6 +3,7 @@ import { DeleteIcon, StarIcon } from "@chakra-ui/icons";
 import { Box, Divider, HStack, IconButton, Text, useColorModeValue, VStack } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useDefaultToast } from "../hooks";
+import { Player } from "../types";
 
 const KICK_PLAYER = gql`
   mutation KickPlayer($uid: String!) {
@@ -10,7 +11,9 @@ const KICK_PLAYER = gql`
   }
 `;
 
-export default function PlayerList({ self, admin, players }) {
+type PlayerListParams = { self: string, admin: string, players: Player[]};
+
+export default function PlayerList({ self, admin, players }: PlayerListParams) {
   const toast = useDefaultToast();
   const containerBg = useColorModeValue('gray.100', 'gray.900');
 

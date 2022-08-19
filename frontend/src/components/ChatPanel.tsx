@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { useState } from "react";
 import { useDefaultToast } from "../hooks";
 import { getPlayerColor } from "../theme";
+import { ChatMessage, Player } from "../types";
 
 const WRITE_CHAT = gql`
   mutation WriteChat($message: String!) {
@@ -25,19 +26,21 @@ const CHAT_UPDATE = gql`
   }
 `;
 
-export default function ChatPanel({ self }) {
+type ChatPanelParams = { self: Player }
+
+export default function ChatPanel({ self }: ChatPanelParams) {
   const containerBg = useColorModeValue('gray.100', 'gray.900');
 
   const toast = useDefaultToast();
 
-  const [chatMessages, setChatMessages] = useState([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [message, setMessage] = useState('');
 
-  const addMessage = (message) => {
+  const addMessage = (message: ChatMessage) => {
     setChatMessages([...chatMessages, message]);
   };
 
-  const scrollRef = useRef();
+  const scrollRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -56,13 +59,6 @@ export default function ChatPanel({ self }) {
   });
 
   useSubscription(CHAT_UPDATE, {
-    onError: (error) => {
-      toast({
-        title: 'Error loading chat!',
-        description: error.message,
-        status: 'error',
-      });
-    },
     onSubscriptionData: (data) => {
       const chatMessage = data.subscriptionData.data.chatMessage;
       addMessage(chatMessage);
@@ -90,14 +86,6 @@ export default function ChatPanel({ self }) {
           style={{ width: '100%' }}
           onSubmit={(e) => {
             e.preventDefault();
-            //alert('submit chat: ' + message);
-            /*addMessage({
-              message,
-              player: {
-                uid: '48f3a8aa-bcc7-45f3-a50c-cf391101b511',
-                nickname: 'Fabian',
-              }
-            });*/
             writeChat({
               variables: {
                 message: message
@@ -116,7 +104,9 @@ export default function ChatPanel({ self }) {
   )
 }
 
-function ChatItem({ message, self }) {
+type ChatItemProps = { message: ChatMessage, self: Player };
+
+function ChatItem({ message, self }: ChatItemProps) {
   const isOwnMessage = (self.uid === message.player.uid);
   return (
     <Flex

@@ -4,6 +4,7 @@ import { useState } from "react";
 import ChatPanel from "../components/ChatPanel";
 import GameBoard from "../components/GameBoard";
 import { useDefaultToast, useSelf } from "../hooks";
+import { Lobby } from "../types";
 
 const LOBBY_INFO = gql`
   query LobbyInfo {
@@ -32,7 +33,7 @@ export default function Game() {
   const toast = useDefaultToast();
 
   const self = useSelf(toast);
-  const [lobbyInfo, setLobbyInfo] = useState();
+  const [lobbyInfo, setLobbyInfo] = useState<Lobby>();
 
   const [stopGame] = useMutation(STOP_GAME, {
     onError: (error) => {
@@ -67,12 +68,14 @@ export default function Game() {
           {lobbyInfo &&
             <GameBoard rows={lobbyInfo.rows} cols={lobbyInfo.cols} />
           }
-          <ChatPanel self={self} />
+          {self &&
+            <ChatPanel self={self} />
+          }
         </Flex>
 
-        {lobbyInfo && lobbyInfo.admin === self.uid &&
+        {lobbyInfo && self && lobbyInfo.admin === self.uid &&
           <Tooltip label='Stops the current game and redirect everyone back to the lobby.'>
-            <Button colorScheme='red' onClick={stopGame}>Stop Game</Button>
+            <Button colorScheme='red' onClick={_ => stopGame()}>Stop Game</Button>
           </Tooltip>
         }
       </VStack>

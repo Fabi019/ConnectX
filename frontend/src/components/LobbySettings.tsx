@@ -11,7 +11,9 @@ const SAVE_SETTINGS = gql`
   }
 `;
 
-export default function LobbySettings({ editable, maxPlayers, rows, cols, connect }) {
+type LobbyParams = { editable: boolean, maxPlayers: number, rows: number, cols: number, connect: number};
+
+export default function LobbySettings({ editable, maxPlayers, rows, cols, connect }: LobbyParams) {
   const containerBg = useColorModeValue('gray.100', 'gray.900');
 
   const toast = useDefaultToast();
@@ -27,8 +29,8 @@ export default function LobbySettings({ editable, maxPlayers, rows, cols, connec
 
   const [saveSettings] = useMutation(SAVE_SETTINGS, {
     variables: {
-      rows: parseInt(rowsState),
-      cols: parseInt(colsState),
+      rows: rowsState,
+      cols: colsState,
       maxPlayers: maxPlayersState,
       connect: connectState
     },
@@ -79,7 +81,7 @@ export default function LobbySettings({ editable, maxPlayers, rows, cols, connec
 
           <FormControl>
             <FormLabel>Board rows</FormLabel>
-            <NumberInput isDisabled={!editable} value={editable ? rowsState : rows} onChange={setRows} min={5} max={30}>
+            <NumberInput isDisabled={!editable} value={editable ? rowsState : rows} onChange={(_, v) => setRows(v)} min={5} max={30}>
               <NumberInputField />
               <NumberInputStepper>
                 <NumberIncrementStepper />
@@ -90,7 +92,7 @@ export default function LobbySettings({ editable, maxPlayers, rows, cols, connec
 
           <FormControl>
             <FormLabel>Board columns</FormLabel>
-            <NumberInput isDisabled={!editable} value={editable ? colsState : cols} onChange={setCols} min={5} max={30}>
+            <NumberInput isDisabled={!editable} value={editable ? colsState : cols} onChange={(_, v) => setCols(v)} min={5} max={30}>
               <NumberInputField />
               <NumberInputStepper>
                 <NumberIncrementStepper />

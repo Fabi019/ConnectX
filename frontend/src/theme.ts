@@ -20,7 +20,8 @@ const theme = extendTheme({
 
 export default theme;
 
-export function getPlayerColor(string) {
+// adapted from https://stackoverflow.com/a/66494926
+export function getPlayerColor(string: string) {
   let stringUniqueHash = [...string].reduce((acc, char) => {
     return char.charCodeAt(0) + ((acc << 5) - acc);
   }, 0);

@@ -14,7 +14,7 @@ import { ColorModeScript } from '@chakra-ui/react'
 import theme from './theme';
 import { BrowserRouter } from 'react-router-dom';
 
-const apiUrl = process.env.NODE_ENV === 'production' ? '***' : 'localhost:4000'
+const apiUrl = process.env.NODE_ENV === 'production' ? '***' : 'localhost:4000';
 
 const httpLink = new HttpLink({
   uri: 'https://' + apiUrl + '/graphql',
@@ -22,8 +22,7 @@ const httpLink = new HttpLink({
 });
 
 const wsLink = new GraphQLWsLink(createClient({
-  url: 'wss://' + apiUrl + '/graphql',
-  credentials: 'include'
+  url: 'wss://' + apiUrl + '/graphql'
 }));
 
 const splitLink = split(
@@ -43,7 +42,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 });
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <React.StrictMode>
     <ColorModeScript initialColorMode={theme.config.initialColorMode} />
