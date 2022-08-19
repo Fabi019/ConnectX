@@ -1,6 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Button, Center, Flex, Heading, Spacer, Text, Tooltip, VStack } from "@chakra-ui/react";
-import { useState } from "react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, Center, Flex, Heading, Spacer, Text, Tooltip, useDisclosure, VStack } from "@chakra-ui/react";
+import { useRef, useState } from "react";
 import ChatPanel from "../components/ChatPanel";
 import GameBoard from "../components/GameBoard";
 import { useDefaultToast, useSelf } from "../hooks";
@@ -77,10 +77,52 @@ export default function Game() {
 
         {lobbyInfo && self && lobbyInfo.admin === self.uid &&
           <Tooltip label='Stops the current game and redirect everyone back to the lobby.'>
-            <Button colorScheme='red' onClick={_ => stopGame()}>Stop Game</Button>
+            <ConfirmStopGameButton onConfirm={stopGame} />
           </Tooltip>
         }
       </VStack>
     </Center>
   );
+}
+
+type ConfirmStopGameButtonParams = { onConfirm: () => void };
+
+function ConfirmStopGameButton({ onConfirm }: ConfirmStopGameButtonParams) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <>
+      <Button colorScheme='red' onClick={onOpen}>
+        Stop Game
+      </Button>
+
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Stop Game
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure? Everyone will get sent back to the lobby and the current game can not be recovered after that.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button colorScheme='red' onClick={onConfirm} ml={3}>
+                Confirm
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+    </>
+  )
 }
