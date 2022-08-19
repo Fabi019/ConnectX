@@ -67,8 +67,8 @@ export default function Game() {
         <Text>Connect {lobbyInfo && lobbyInfo.connect}</Text>
 
         <Flex w='full' flexFlow='wrap' justifyContent='center' gap={8} py={8}>
-          {lobbyInfo &&
-            <GameBoard rows={lobbyInfo.rows} cols={lobbyInfo.cols} />
+          {lobbyInfo && self &&
+            <GameBoard rows={lobbyInfo.rows} cols={lobbyInfo.cols} self={self} />
           }
           {self &&
             <ChatPanel self={self} />

@@ -39,19 +39,21 @@ const GAME_INFO = gql`
   }
 `;
 
-type BoardParams = { rows: number, cols: number };
+type BoardParams = { rows: number, cols: number, self: Player };
 
-export default function GameBoard({ rows, cols }: BoardParams) {
+export default function GameBoard({ rows, cols, self }: BoardParams) {
   const toast = useDefaultToast();
 
   const [selectedCol, setSelectedCol] = useState(-1);
 
   const [board, setBoard] = useState<Player[][]>([]);
 
+  const [currentPlayer, setCurrentPlayer] = useState<Player>();
+
   useSubscription(GAME_STATE, {
     onSubscriptionData: (data) => {
       const gameState: GameUpdate = data.subscriptionData.data.gameState;
-      handleGameStateData(gameState, toast);
+      handleGameStateData(gameState, toast, setCurrentPlayer);
       if (gameState.board) {
         setBoard(gameState.board);
       }
@@ -82,7 +84,7 @@ export default function GameBoard({ rows, cols }: BoardParams) {
 
   return (
     <Grid
-      cursor='pointer'
+      cursor={currentPlayer && currentPlayer.uid !== self.uid ? 'not-allowed' : 'pointer'}
       onMouseLeave={_ => setSelectedCol(-1)}
       alignSelf='center'
       border='1px solid'
@@ -99,8 +101,13 @@ export default function GameBoard({ rows, cols }: BoardParams) {
             row={rows - row}
             player={board[col] && board[col][row]}
             bg={selectedCol === col ? 'blackAlpha.400' : 'transparent'}
-            onClick={() => makeTurn({ variables: { col } })}
-            onEnter={() => setSelectedCol(col)}
+            onClick={() => {
+              if (currentPlayer && currentPlayer.uid !== self.uid) {
+                return;
+              }
+              makeTurn({ variables: { col } });
+            }}
+            onEnter={() => selectedCol !== col && setSelectedCol(col)}
           />
         ))
       }
@@ -173,7 +180,7 @@ function BoardElement({ col, row, player, bg, onClick, onEnter }: ElementProps) 
   )
 }
 
-function handleGameStateData(gameState: GameUpdate, toast: Toast) {
+function handleGameStateData(gameState: GameUpdate, toast: Toast, setCurrentPlayer: (p?: Player) => void) {
   if (gameState.state === GameState.LOBBY) { // Lobby
     window.location.pathname = '/lobby';
   } else if (gameState.state === GameState.TURN) { // Turn update
@@ -181,6 +188,7 @@ function handleGameStateData(gameState: GameUpdate, toast: Toast) {
       title: 'Turn has changed!',
       description: `Next player is: ${gameState.player.nickname}.`,
     });
+    setCurrentPlayer(gameState.player);
   } else if (gameState.state === GameState.PLACE) { // Place update
     /*toast({
       status: 'success',
@@ -195,5 +203,6 @@ function handleGameStateData(gameState: GameUpdate, toast: Toast) {
       isClosable: false,
       description: `${gameState.player.nickname} has won!`,
     });
+    setCurrentPlayer();
   }
 }
