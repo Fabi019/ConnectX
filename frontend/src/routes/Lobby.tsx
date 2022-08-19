@@ -88,7 +88,7 @@ export default function Lobby() {
 
   useSubscription(LOBBY_STATE, {
     onSubscriptionData: (data) => {
-      const lobbyState = data.subscriptionData.data.lobbyState;
+      const lobbyState: LobbyUpdate = data.subscriptionData.data.lobbyState;
       handleLobbyStateData(self!!, lobbyState, toast);
       setLobbyState(lobbyState.lobby);
     }

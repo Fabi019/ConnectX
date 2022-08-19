@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { Toast, useDefaultToast } from "../hooks";
 import { getPlayerColor } from "../theme";
-import { GameState, GameUpdate } from "../types";
+import { GameState, GameUpdate, Player } from "../types";
 
 const MAKE_TURN = gql`
   mutation MakeTurn($col: Int!) {
@@ -46,11 +46,11 @@ export default function GameBoard({ rows, cols }: BoardParams) {
 
   const [selectedCol, setSelectedCol] = useState(-1);
 
-  const [board, setBoard] = useState([]);
+  const [board, setBoard] = useState<Player[][]>([]);
 
   useSubscription(GAME_STATE, {
     onSubscriptionData: (data) => {
-      const gameState = data.subscriptionData.data.gameState;
+      const gameState: GameUpdate = data.subscriptionData.data.gameState;
       handleGameStateData(gameState, toast);
       if (gameState.board) {
         setBoard(gameState.board);
@@ -111,13 +111,13 @@ export default function GameBoard({ rows, cols }: BoardParams) {
 type ElementProps = { 
   col: number,
   row: number,
-  player?: { uid: string, nickname: string },
+  player?: Player,
+  bg: string,
   onClick: () => void,
-  onEnter: () => void,
-  bg: string
-}
+  onEnter: () => void
+};
 
-function BoardElement({ col, row, player, onClick, onEnter, bg }: ElementProps) {
+function BoardElement({ col, row, player, bg, onClick, onEnter }: ElementProps) {
   const controls = useAnimation();
 
   useEffect(() => {

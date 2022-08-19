@@ -13,7 +13,7 @@ const SELF = gql`
 `;
 
 export function useSelf(toast: Toast): Player | undefined {
-  const [self, setSelf] = useState();
+  const [self, setSelf] = useState<Player>();
   useQuery(SELF, {
     fetchPolicy: 'network-only',
     onError: (error) => {

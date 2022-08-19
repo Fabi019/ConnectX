@@ -60,7 +60,7 @@ export default function ChatPanel({ self }: ChatPanelParams) {
 
   useSubscription(CHAT_UPDATE, {
     onSubscriptionData: (data) => {
-      const chatMessage = data.subscriptionData.data.chatMessage;
+      const chatMessage: ChatMessage = data.subscriptionData.data.chatMessage;
       addMessage(chatMessage);
     }
   });
