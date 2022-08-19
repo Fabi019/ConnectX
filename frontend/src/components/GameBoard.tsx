@@ -89,7 +89,7 @@ export default function GameBoard({ rows, cols }: BoardParams) {
       borderRadius={5}
       autoColumns='40'
       autoRows='40'
-      bg='rgba(200, 200, 200, 0.3)'
+      bg='whiteAlpha.400'
     >
       {[...Array(cols)].map((_, col) =>
         [...Array(rows)].map((_, row) =>
@@ -98,7 +98,7 @@ export default function GameBoard({ rows, cols }: BoardParams) {
             col={col}
             row={rows - row}
             player={board[col] && board[col][row]}
-            bg={selectedCol === col ? 'rgba(200, 200, 200, 0.3)' : 'transparent'}
+            bg={selectedCol === col ? 'blackAlpha.400' : 'transparent'}
             onClick={() => makeTurn({ variables: { col } })}
             onEnter={() => setSelectedCol(col)}
           />
