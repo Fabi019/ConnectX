@@ -7,6 +7,7 @@ import { gql, useQuery, useMutation, useSubscription } from '@apollo/client';
 import { useState } from "react";
 import { Toast, useDefaultToast, useSelf } from "../hooks";
 import { Lobby as LobbyType, LobbyState, LobbyUpdate, Player } from "../types";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 const LOBBY_INFO = gql`
   query LobbyInfo {
@@ -134,7 +135,11 @@ export default function Lobby() {
         </Flex>
 
         <ButtonGroup>
-          <Button colorScheme='red' onClick={_ => leaveLobby()}>Leave Lobby</Button>
+          <ConfirmDialog
+            buttonText='Leave Lobby'
+            description='Are you sure? If you are the current admin, the next longest player in the lobby will be set as admin after you left.'
+            onConfirm={leaveLobby}
+          />
           {lobbyState && self && self.uid === lobbyState.admin &&
             <Button colorScheme='green' onClick={_ => startGame()}>Start Game</Button>
           }

@@ -133,7 +133,7 @@ export default function CreateLobby() {
           </form>
         </Box>
 
-        <Text as='kbd'>version 1.1.0 ({process.env.NODE_ENV})</Text>
+        <Text as='kbd'>version 1.1.2 ({process.env.NODE_ENV})</Text>
       </VStack>
     </Center>
   );
