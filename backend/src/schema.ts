@@ -343,7 +343,7 @@ export const resolvers = {
       }
 
       if (lobby.state === GameState.GAME_START) {
-        throw new Error('Game already started, try stopping the game first!');
+        // throw new Error('Game already started, try stopping the game first!');
       }
 
       // Initialize game
@@ -474,11 +474,12 @@ export const resolvers = {
         throw new Error('Only the admin can modify settings!');
       }
 
-      // TODO: verify parameters
-      lobby.rows = rows;
-      lobby.cols = cols;
-      lobby.maxPlayers = maxPlayers;
-      lobby.connect = connect;
+      const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
+      lobby.rows = clamp(rows, 5, 30);
+      lobby.cols = clamp(cols, 5, 30);
+      lobby.maxPlayers = clamp(maxPlayers, 2, 10);
+      lobby.connect = clamp(connect, 2, 10);
 
       await updateLobby(lobby, redis);
       lobby.players = await getLobbyPlayers(lobbyId, redis);
