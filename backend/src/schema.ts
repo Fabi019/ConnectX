@@ -136,7 +136,7 @@ export const resolvers = {
       const { lobbyId, uid } = session;
 
       const inLobby = await isPlayerInLobby(lobbyId, uid, redis);
-      if (!lobbyId || !inLobby) {
+      if (!inLobby) {
         session.lobbyId = null;
         throw new Error('You are not in a lobby!');
       }
@@ -157,7 +157,7 @@ export const resolvers = {
       const { lobbyId, uid } = session;
 
       const inLobby = await isPlayerInLobby(lobbyId, uid, redis);
-      if (!lobbyId || !inLobby) {
+      if (!inLobby) {
         session.lobbyId = null;
         throw new Error('You are not in a lobby!');
       }
@@ -243,7 +243,7 @@ export const resolvers = {
       const lobby = await redis.hGetAll(`lobby:${lobbyId}`) as Lobby;
       lobby.players = await getLobbyPlayers(lobbyId, redis);
 
-      // Trigger gameState update
+      // Trigger lobbyState update
       await pubsub.publish('LOBBY_STATE', {
         lobbyState: {
           lobbyId,
@@ -282,10 +282,7 @@ export const resolvers = {
         throw new Error('It is not your turn!');
       }
 
-      const player = {
-        uid,
-        nickname,
-      } as Player;
+      const player: Player = { uid, nickname };
 
       const result = makeTurn(lobbyId, player, col);
 
@@ -432,13 +429,13 @@ export const resolvers = {
       session.nickname = nickname;
 
       // Check if player already is in the lobby
-      const alreadyInLobby = await redis.hExists(`player:${lobbyId}`, session.uid);
-      if (alreadyInLobby) {
+      const inLobby = await isPlayerInLobby(lobbyId, session.uid, redis);
+      if (inLobby) {
         throw new Error('You are already in that lobby!');
       }
 
       // Set player as lobby admin
-      if (lobby.playerCount <= 0) {
+      if (lobby.playerCount === 0) {
         await redis.hSet(`lobby:${lobbyId}`, 'admin', session.uid);
       }
 

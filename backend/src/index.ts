@@ -163,7 +163,7 @@ async function startApolloServer(typeDefs, resolvers) {
       credentials: true,
       origin: process.env.NODE_ENV === 'production' ?
         ['https://connect-xr.web.app', 'https://connect-xr.firebaseapp.com'] :
-        ['http://localhost:3000', 'http://192.168.178.120:3000'],
+        ['http://localhost:3000'],
     }
   });
 

@@ -120,5 +120,8 @@ export async function removePlayerFromLobby(lobbyId: string, uid: string, redis:
 }
 
 export async function isPlayerInLobby(lobbyId: string, uid: string, redis: RedisClient): Promise<boolean> {
+  if (!lobbyId || !uid) {
+    return false;
+  }
   return await redis.hExists(`player:${lobbyId}`, uid);
 }
