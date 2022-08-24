@@ -189,13 +189,16 @@ function LinkTag({ lobbyId }: LinkTagParams) {
   const { hasCopied, onCopy } = useClipboard(url);
 
   return (
-    <Tooltip hasArrow label={hasCopied ? 'Copied!' : 'Click to copy!'}>
-      <Link onClick={(e) => {
-        e.preventDefault();
-        onCopy();
-      }} href={url} isExternal>
-        <Tag><Text as='kbd'>{lobbyId}</Text></Tag>
-      </Link>
+    <Tooltip hasArrow label={hasCopied ? 'Copied!' : 'Click to copy'}>
+      <Tag as={Link}
+        onClick={(e) => {
+          e.preventDefault();
+          onCopy();
+        }}
+        href={url} isExternal
+      >
+        <Text as='kbd'>{lobbyId}</Text>
+      </Tag>
     </Tooltip>
   );
 }
