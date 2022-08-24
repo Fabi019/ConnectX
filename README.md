@@ -5,7 +5,7 @@ to only two players or connecting only 4 pieces it can be played with multiple
 people, an adjustable board size and connect amount.
 
 The frontend is written in React using Chakra as a UI-Library, while the backend
-uses TypeScript with a GraphQL API and Redis for storing session details.
+uses a GraphQL API with Redis for storing session and lobby states.
 
 Live demo at: <https://connect-xr.web.app>
 
